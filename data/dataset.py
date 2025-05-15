@@ -1,25 +1,23 @@
 import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
-def generate_data(n_samples=100):
-    """Genera un dataset sintético de dos clases."""
-    np.random.seed(42)
+def load_iris_data(test_size=0.2, random_state=42):
+    """Carga y preprocesa el dataset Iris."""
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
     
-    # Clase 0: Puntos alrededor de (0, 0)
-    class0 = np.random.randn(n_samples // 2, 2) * 0.5
+    # Escalar características
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
     
-    # Clase 1: Puntos alrededor de (2, 2)
-    class1 = np.random.randn(n_samples // 2, 2) * 0.5 + 2
+    # Codificar etiquetas (one-hot)
+    encoder = OneHotEncoder(sparse_output=False)
+    y = encoder.fit_transform(y.reshape(-1, 1))
     
-    X = np.vstack([class0, class1])
-    y = np.array([0] * (n_samples // 2) + [1] * (n_samples // 2)).reshape(-1, 1)
+    # Dividir en entrenamiento y prueba
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
     
-    return X, y
-
-def plot_data(X, y, title="Dataset"):
-    """Visualiza el dataset."""
-    plt.scatter(X[y.flatten() == 0][:, 0], X[y.flatten() == 0][:, 1], label="Clase 0")
-    plt.scatter(X[y.flatten() == 1][:, 0], X[y.flatten() == 1][:, 1], label="Clase 1")
-    plt.title(title)
-    plt.legend()
-    plt.show()
+    return X_train, X_test, y_train, y_test
